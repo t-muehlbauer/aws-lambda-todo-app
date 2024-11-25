@@ -1,13 +1,11 @@
 import 'source-map-support/register.js';
-import * as middy from 'middy';
-import { cors } from 'middy/middlewares.js';
 import { getUserId } from '../utils.mjs';
 import { updateTodo } from '../../businessLogic/todos.mjs';
 import { createLogger } from '../../utils/logger.mjs';
 
 const logger = createLogger('updateTodo');
 
-export const handler = middy(async (event) => {
+const updateTodoHandler = async (event) => {
   const todoId = event.pathParameters.todoId;
   const updatedTodo = JSON.parse(event.body);
   
@@ -20,12 +18,14 @@ export const handler = middy(async (event) => {
 
   return {
     statusCode: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+      'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+      'Access-Control-Allow-Methods': 'PATCH,OPTIONS'
+    },
     body: ''
   };
-});
+};
 
-handler.use(
-  cors({
-    credentials: true
-  })
-);
+export const handler = updateTodoHandler;
