@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Name des To-Do-Elements"
+      },
+      "dueDate": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Fälligkeitsdatum des To-Do-Elements"
+      }
+    },
+    "required": ["name", "dueDate"],
+    "additionalProperties": false
+  }
