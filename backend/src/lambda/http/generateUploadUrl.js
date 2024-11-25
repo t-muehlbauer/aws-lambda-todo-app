@@ -1,9 +1,9 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import * as middy from 'middy';
-import { cors } from 'middy/middlewares';
-import { getUserId } from '../utils';
-import { createAttachmentPresignedUrl } from '../../businessLogic/todos';
-import { createLogger } from '../utils/logger';
+import { cors } from 'middy/middlewares.js';
+import { getUserId } from '../utils.mjs';
+import { createAttachmentPresignedUrl } from '../../businessLogic/todos.mjs';
+import { createLogger } from '../../utils/logger.mjs';
 
 const logger = createLogger('generateUploadUrl');
 

@@ -1,24 +1,21 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import * as middy from 'middy';
-import { cors } from 'middy/middlewares';
-import { getUserId } from '../utils';
-import { createAttachmentPresignedUrl } from '../../businessLogic/todos';
-import { createLogger } from '../../utils/logger';
+import { cors } from 'middy/middlewares.js';
+import { getUserId } from '../utils.mjs';
+import { getTodosForUser } from '../../businessLogic/todos.mjs';
+import { createLogger } from '../../utils/logger.mjs';
 
 const logger = createLogger('getTodos');
 
 export const handler = middy(async (event) => {
-  logger.info('Processing event', { event });
-  const todoId = event.pathParameters.todoId;
   const userId = getUserId(event);
-
-  const uploadUrl = await createAttachmentPresignedUrl(todoId, userId);
-  logger.info('Generated upload URL', { uploadUrl });
+  logger.info(`Fetching todos for user ${userId}`);
+  const todos = await getTodosForUser(userId);
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      uploadUrl
+      items: todos
     })
   };
 });

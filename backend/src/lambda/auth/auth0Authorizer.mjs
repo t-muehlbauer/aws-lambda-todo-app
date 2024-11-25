@@ -3,7 +3,7 @@ import { decode, verify } from 'jsonwebtoken';
 import { createLogger } from '../../utils/logger.mjs';
 
 const logger = createLogger('auth');
-const jwksUrl = 'https://test-endpoint.auth0.com/.well-known/jwks.json';
+const jwksUrl = process.env.AUTH0_JWKS_URL;
 let cachedCertificate;
 
 export async function handler(event) {

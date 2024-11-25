@@ -1,35 +1,31 @@
-import AWS from 'aws-sdk';
+import * as AWS from 'aws-sdk';
 import AWSXRay from 'aws-xray-sdk';
 import { createLogger } from '../utils/logger.mjs';
 
 const XAWS = AWSXRay.captureAWS(AWS);
-
 const logger = createLogger('TodosAccess');
 
 export class TodosAccess {
-  constructor(
-    docClient = createDynamoDBClient(),
-    todosTable = process.env.TODOS_TABLE,
-    s3Bucket = process.env.ATTACHMENT_S3_BUCKET
-  ) {
-    this.docClient = docClient;
-    this.todosTable = todosTable;
-    this.s3Bucket = s3Bucket;
+  constructor() {
+    this.docClient = new XAWS.DynamoDB.DocumentClient();
+    this.todosTable = process.env.TODOS_TABLE;
+    this.s3Bucket = process.env.ATTACHMENT_S3_BUCKET;
   }
 
   async createTodo(todo) {
-    logger.info(`Creating a new todo with ID ${todo.todoId}`);
+    logger.info(`Creating todo ${todo.todoId}`);
 
     const params = {
       TableName: this.todosTable,
       Item: todo
     };
+
     await this.docClient.put(params).promise();
     return todo;
   }
 
   async getTodosForUser(userId) {
-    logger.info(`Getting all todos for user ${userId}`);
+    logger.info(`Fetching todos for user ${userId}`);
 
     const params = {
       TableName: this.todosTable,
@@ -38,13 +34,13 @@ export class TodosAccess {
         ':userId': userId
       }
     };
+
     const result = await this.docClient.query(params).promise();
-    const items = result.Items;
-    return items;
+    return result.Items;
   }
 
   async updateTodo(userId, todoId, updatedTodo) {
-    logger.info(`Updating todo with ID ${todoId}`);
+    logger.info(`Updating todo ${todoId} for user ${userId}`);
 
     const params = {
       TableName: this.todosTable,
@@ -65,13 +61,13 @@ export class TodosAccess {
       },
       ReturnValues: 'ALL_NEW'
     };
+
     const result = await this.docClient.update(params).promise();
-    const item = result.Attributes;
-    return item;
+    return result.Attributes;
   }
 
   async updateAttachmentUrl(todoId, userId) {
-    logger.info(`Updating attachment URL for todo with ID ${todoId}`);
+    logger.info(`Updating attachment URL for todo ${todoId}`);
 
     const attachmentUrl = `https://${this.s3Bucket}.s3.amazonaws.com/${todoId}`;
 
@@ -92,12 +88,11 @@ export class TodosAccess {
     };
 
     const result = await this.docClient.update(params).promise();
-    const item = result.Attributes;
-    return item;
+    return result.Attributes;
   }
 
   async deleteTodo(userId, todoId) {
-    logger.info(`Deleting todo with ID ${todoId}`);
+    logger.info(`Deleting todo ${todoId} for user ${userId}`);
 
     const params = {
       TableName: this.todosTable,
@@ -106,10 +101,7 @@ export class TodosAccess {
         todoId
       }
     };
+
     await this.docClient.delete(params).promise();
   }
-}
-
-function createDynamoDBClient() {
-  return new XAWS.DynamoDB.DocumentClient();
 }

@@ -13,7 +13,7 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs16.x
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
@@ -27,11 +27,11 @@ provider:
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: tommy-attachment-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    AUTH0_JWKS_URL: tbd'
+    AUTH0_JWKS_URL: https://dev-zob7vfq106w5ehjh.eu.auth0.com/.well-known/jwks.json
 
   logs:
     restApi: true
-
+  
   iam:
     role:
       statements:
@@ -47,7 +47,6 @@ custom:
       info:
         version: '1.0'
         title: 'Serverless Todo App API'
-        description: 'A simple todo app built with serverless'
     models:
       - name: CreateTodoRequest
         contentType: "application/json"
@@ -55,6 +54,9 @@ custom:
       - name: UpdateTodoRequest
         contentType: "application/json"
         schema: ${file(models/update-todo-model.json)}
+  webpack:
+    webpackConfig: webpack.config.cjs
+    includeModules: true
 
 functions:
 
@@ -65,8 +67,6 @@ functions:
     handler: src/lambda/http/getTodos.handler
     events:
       - http:
-          documentation:
-            summary: "Get a User todo"
           method: get
           path: todos
           cors: true
@@ -81,10 +81,6 @@ functions:
     handler: src/lambda/http/createTodo.handler
     events:
       - http:
-          documentation:
-            summary: "Create todo"
-            requestModels:
-              "application/json": CreateTodoRequest
           method: post
           path: todos
           cors: true
@@ -100,10 +96,6 @@ functions:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
-          documentation:
-            summary: "Update todo"
-            requestModels:
-              "application/json": UpdateTodoRequest
           method: patch
           path: todos/{todoId}
           cors: true
@@ -122,8 +114,6 @@ functions:
     handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
-          documentation:
-            summary: "Delete todo"
           method: delete
           path: todos/{todoId}
           cors: true
@@ -138,8 +128,6 @@ functions:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
-          documentation:
-            summary: "Generate todo image url"
           method: post
           path: todos/{todoId}/attachment
           cors: true
@@ -165,7 +153,6 @@ resources:
           Ref: ApiGatewayRestApi
         ValidateRequestBody: true
         ValidateRequestParameters: false
-      Description: "Validates the request body"
 
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
@@ -177,7 +164,6 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
-      Description: "Standard 4XX response"
     
     # DynamoDB
     TodosTable:
@@ -214,19 +200,23 @@ resources:
         BucketName: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
         CorsConfiguration:
           CorsRules:
-            - AllowedHeaders:
-                - "*"
-              AllowedOrigins:
-                - "*"
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
               AllowedMethods:
                 - GET
-                - POST
                 - PUT
-                - HEAD
+                - POST
                 - DELETE
+                - HEAD
               MaxAge: 3000
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
 
-    # S3 Attachments Bucket Policy
     BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
@@ -234,13 +224,9 @@ resources:
         PolicyDocument:
           Id: S3AttachmentBucketPolicy
           Statement:
-              - Effect: Allow
-                Action: 
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource: !Join
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - ${self:provider.environment.ATTACHMENT_S3_BUCKET}
-                      - /*
-                Principal: "*"
+            - Effect: Allow
+              Action: 
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub 'arn:aws:s3:::${AttachmentsBucket}/*'
+              Principal: "*"

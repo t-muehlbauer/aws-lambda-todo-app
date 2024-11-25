@@ -1,5 +1,5 @@
 import { TodosAccess } from '../dataLayer/todosAccess.mjs';
-import { AttachmentUtils } from '../dataLayer/attachmentUtils.mjs';
+import { AttachmentUtils } from '../fileStorage/attachmentUtils.mjs';
 import { createLogger } from '../utils/logger.mjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -31,17 +31,17 @@ export async function getTodosForUser(userId) {
 }
 
 export async function updateTodo(userId, todoId, updatedTodo) {
-  logger.info(`Updating todo ${todoId} for user ${userId}`);
+  logger.info(`Updating todo with ID ${todoId} for user ${userId}`);
   return await todosAccess.updateTodo(userId, todoId, updatedTodo);
 }
 
 export async function deleteTodo(userId, todoId) {
-  logger.info(`Deleting todo ${todoId} for user ${userId}`);
+  logger.info(`Deleting todo with ID ${todoId} for user ${userId}`);
   return await todosAccess.deleteTodo(userId, todoId);
 }
 
 export async function createAttachmentPresignedUrl(todoId, userId) {
-  logger.info(`Creating attachment presigned URL for todo ${todoId} for user ${userId}`);
-  await todosAccess.updateAttachmentUrl(todoId, userId); // Update Todo attachment URL
+  logger.info(`Generating upload URL for todo with ID ${todoId} for user ${userId}`);
+  await todosAccess.updateAttachmentUrl(todoId, userId);
   return await attachmentUtils.createAttachmentPresignedUrl(todoId);
 }

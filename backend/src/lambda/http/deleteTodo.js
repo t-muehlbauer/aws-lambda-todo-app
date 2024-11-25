@@ -1,27 +1,25 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import * as middy from 'middy';
-import { cors } from 'middy/middlewares';
-import { getUserId } from '../utils';
-import { createTodo } from '../../businessLogic/todos';
-import { createLogger } from '../utils/logger';
+import { cors } from 'middy/middlewares.js';
+import { getUserId } from '../utils.mjs';
+import { deleteTodo } from '../../businessLogic/todos.mjs';
+import { createLogger } from '../../utils/logger.mjs';
 
-const logger = createLogger('createTodo');
+const logger = createLogger('deleteTodo');
 
 export const handler = middy(async (event) => {
-  const newTodo = JSON.parse(event.body);
+  const todoId = event.pathParameters.todoId;
   
   const userId = getUserId(event);
-  logger.info(`Creating a new todo for user ${userId}`);
+  logger.info(`Deleting todo with ID ${todoId} for user ${userId}`);
 
-  const todo = await createTodo(userId, newTodo);
+  await deleteTodo(userId, todoId);
 
-  logger.info(`Todo created successfully for user ${userId}`);
+  logger.info(`Todo with ID ${todoId} deleted successfully for user ${userId}`);
 
   return {
-    statusCode: 201,
-    body: JSON.stringify({
-      item: todo
-    })
+    statusCode: 204,
+    body: ''
   };
 });
 
