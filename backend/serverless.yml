@@ -106,6 +106,9 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(models/create-todo-model.json)}
           reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
@@ -124,6 +127,7 @@ functions:
           request:
             schemas:
               application/json: ${file(models/update-todo-model.json)}
+          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:

@@ -1,16 +1,17 @@
 {
-    "type": "object",
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "Name des To-Do-Elements"
-      },
-      "dueDate": {
-        "type": "string",
-        "format": "date-time",
-        "description": "Fälligkeitsdatum des To-Do-Elements"
-      }
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CreateTodoRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 5
     },
-    "required": ["name", "dueDate"],
-    "additionalProperties": false
-  }
+    "dueDate": {
+      "type": "string",
+      "format": "string"
+    }
+  },
+  "required": ["name"],
+  "additionalProperties": false
+}

@@ -7,7 +7,7 @@
       },
       "dueDate": {
         "type": "string",
-        "format": "date-time",
+        "format": "string",
         "description": "Fälligkeitsdatum des To-Do-Elements"
       }
     },
